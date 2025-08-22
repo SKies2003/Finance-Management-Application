@@ -13,6 +13,7 @@ class DatabaseManager:
         """)
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS profile (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 age INTEGER,
                 gender TEXT CHECK(gender IN ('Male', 'Female')),
@@ -35,9 +36,19 @@ class DatabaseManager:
         try:
             self.cursor.execute("INSERT INTO profile (name, age, gender, mobile_number, pan) VALUES (?, ?, ?, ?, ?)", (name, age, gender, mobile_number, pan))
             self.conn.commit()
-            print("Profile created successfully!")
+            return True
         except sqlite3.IntegrityError:
             print("User with this mobile number/pan already exists!")
+            return False
+    
+    def login(self, username: str, password: str):
+        try:
+            self.cursor.execute("SELECT password FROM authenticate WHERE username = ?", (username,))
+            db_password = self.cursor.fetchone()
+            if db_password is not None:
+                return db_password[0] == password
+        except TypeError:
+            return None
     
     def close(self):
         self.cursor.close()
