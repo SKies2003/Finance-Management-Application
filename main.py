@@ -1,28 +1,27 @@
 from utils.database import DatabaseManager
-
-class Main:
-    def __init__(self):
-        self.db = DatabaseManager()
-    
-    def user_registration(self):
-        username = input("Enter a unique username: ")
-        password = input("Enter a password: ")
-        return self.db.sign_up(username, password)
-    
-    def create_profile(self):
-        name = input("Enter your name: ")
-        age = int(input("Enter your age: "))
-        gender = input("Enter Male/Female: ").capitalize()
-        mobile_number = input("Enter your 10 digit mobile number: ")
-        pan = input("Enter your pan number: ")
-        self.db.create_profile(name, age, gender, mobile_number, pan)
-    
-    def close(self):
-        self.db.close()
+from services.authenication import UserAuthenticate
+from services.profile import UserProfile
 
 if __name__ == "__main__":
-    app = Main()
-    while not app.user_registration():
+    db = DatabaseManager()
+    auth = UserAuthenticate(db)
+    profile = UserProfile(db)
+
+    choice = input("SignUp or Login: ").lower().strip()
+    print()
+    if choice == "login":
+        login_status = auth.user_login()
+        if login_status:
+            print("Welcome Back!\n")
+        elif login_status is False:
+            print("Invalid password!\n")
+        else:
+            print("User not found!\n")
+    
+    elif choice == "signup":
+        while not auth.user_registration():
+            print()
         print()
-    app.create_profile()
-    app.close()
+        while not profile.profile_details():
+            print()
+        print("Profile setup completed!")
