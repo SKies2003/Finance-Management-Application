@@ -1,27 +1,43 @@
 from utils.database import DatabaseManager
 from services.authenication import UserAuthenticate
-from services.profile import UserProfile
+import sys
+from services.tracker import Track
 
 if __name__ == "__main__":
+    login_status = False
     db = DatabaseManager()
     auth = UserAuthenticate(db)
-    profile = UserProfile(db)
+    add = Track(db)
 
     choice = input("SignUp or Login: ").lower().strip()
     print()
-    if choice == "login":
-        login_status = auth.user_login()
-        if login_status:
-            print("Welcome Back!\n")
-        elif login_status is False:
-            print("Invalid password!\n")
-        else:
-            print("User not found!\n")
+    if choice == "signup":
+        user_id = auth.user_registration()
+        while user_id is None:
+            print()
+            user_id = auth.user_registration()
+        login_status = True
+
+    elif choice == "login":
+        user_id = auth.user_login()
+        while user_id is None:
+            print()
+            user_id = auth.user_login()
+        login_status = True
+
+    if login_status:
+        try:
+            user_action = int(input("""
+what you want to?
+                            
+    1. Add a new transaction?
+    2. Update an existing transaction?
+    3. Delete transaction?
+        
+Enter a number referencing above actions: """))
+        except:
+            print("Invalid Input!")
+            sys.exit()
     
-    elif choice == "signup":
-        while not auth.user_registration():
-            print()
-        print()
-        while not profile.profile_details():
-            print()
-        print("Profile setup completed!")
+        if user_action == 1:
+            add.add_transaction(user_id)
