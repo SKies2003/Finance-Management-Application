@@ -1,13 +1,13 @@
 from utils.database import DatabaseManager
 from services.authenication import UserAuthenticate
 import sys
-from services.tracker import Track
+from services.tracker import Tracker
 
 if __name__ == "__main__":
     login_status = False
     db = DatabaseManager()
     auth = UserAuthenticate(db)
-    add = Track(db)
+    track = Tracker(db)
 
     choice = input("SignUp or Login: ").lower().strip()
     print()
@@ -31,8 +31,9 @@ if __name__ == "__main__":
 what you want to?
                             
     1. Add a new transaction?
-    2. Update an existing transaction?
-    3. Delete transaction?
+    2. Display all transactions?
+    3. Update an existing transaction?
+    4. Delete transaction?
         
 Enter a number referencing above actions: """))
         except:
@@ -40,4 +41,10 @@ Enter a number referencing above actions: """))
             sys.exit()
     
         if user_action == 1:
-            add.add_transaction(user_id)
+            track.add_transaction(user_id)
+        elif user_action == 2:
+            track.display_transactions(user_id)
+        elif user_action == 3:
+            track.update_transaction()
+        elif user_action == 4:
+            track.delete_transaction()

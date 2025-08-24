@@ -1,5 +1,4 @@
 import sqlite3
-from typing import Optional
 
 class DatabaseManager:
     def __init__(self, db_name = "db.sqlite"):
@@ -21,12 +20,12 @@ class DatabaseManager:
 
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 transaction_type TEXT CHECK(transaction_type IN ('Income', 'Expense')),
                 category TEXT,
-                amount REAL,
-                date TEXT DEFAULT CURRENT_DATE,
+                amount REAL NOT NULL,
+                date TEXT DEFAULT (DATE('now')),
                 FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
             )
             """)
@@ -60,6 +59,27 @@ class DatabaseManager:
         self.cursor.execute("INSERT INTO transactions (user_id, transaction_type, category, amount) VALUES (?, ?, ?, ?)", (user_id, transaction_type, category, amount))
         self.conn.commit()
         return True
+    
+    def display_transactions(self, user_id: int):
+        self.cursor.execute("SELECT transaction_id, transaction_type, category, amount, date FROM transactions WHERE user_id = ?", (user_id, ))
+        all_transactions = self.cursor.fetchall()
+        print("\nYour all transactions:\nPlease note the transaction id if you want to update it's content\n")
+        for i in all_transactions:
+            print("Transaction id:", i[0])
+            print(i[1], "category:", i[2])
+            print("Amount:", i[3])
+            print("Transaction added on", i[4])
+            print()
+    
+    def update_transaction(self, transaction_id:int, column: str, update: str|float):
+        self.cursor.execute(f"UPDATE transactions SET {column} = ? WHERE transaction_id = ?", (update, transaction_id))
+        self.conn.commit()
+    
+    def delete_transaction(self, transaction_id: int):
+        self.cursor.execute("DELETE FROM transactions WHERE transaction_id = ?", (transaction_id,))
+        self.conn.commit()
+    
+    def reporting
     
     def close(self):
         self.cursor.close()
