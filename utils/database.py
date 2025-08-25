@@ -1,4 +1,5 @@
 import sqlite3
+import calendar
 
 class DatabaseManager:
     def __init__(self, db_name = "db.sqlite"):
@@ -79,7 +80,68 @@ class DatabaseManager:
         self.cursor.execute("DELETE FROM transactions WHERE transaction_id = ?", (transaction_id,))
         self.conn.commit()
     
-    def reporting
+    def monthly_report(self, user_id: int, year: int, month: int):
+        sql = """
+        SELECT category, SUM(amount) as total 
+        FROM transactions
+        WHERE user_id = ? AND strftime('%Y', date) = ? AND strftime('%m', date) = ?
+        GROUP BY category
+        ORDER BY total
+        """
+        self.cursor.execute(sql, (user_id, str(year), f"{month:02d}"))
+        monthly_report = self.cursor.fetchall()
+        if len(monthly_report) > 0:
+            print("\nMonthly report:")
+            print("Categories", "Amount")
+            for i in monthly_report:
+                print(i[0], "=", i[1])
+        
+        sql = """
+        SELECT transaction_type, SUM(amount) as total
+        FROM transactions
+        WHERE user_id = ? AND strftime('%Y', date) = ? AND strftime('%m', date) = ?
+        GROUP BY transaction_type
+        """
+        self.cursor.execute(sql, (user_id, str(year), f"{month:02d}"))
+        transact = self.cursor.fetchall()
+        if len(transact) == 1:
+            if transact[0][0] == 'Expense':
+                print(f"You overspent {abs(transact[0][1])} this month")
+            else:
+                print(f"You saved {transact[0][1]} this month")
+        elif len(transact) == 2:
+            if transact[0][0] == 'Expense':
+                print("You saved", transact[1][1]-transact[0][1], "this month")
+            else:
+                print("You saved", transact[0][1]-transact[1][1], "this month")
+        else:
+            print("No transaction saved for this month.")
+    
+    def yearly_report(self, user_id: int, year: int):
+        sql = """
+        SELECT strftime('%m', date) as month, transaction_type, SUM(amount) as total
+        FROM transactions
+        WHERE user_id = ? AND strftime('%Y', date) = ?
+        GROUP BY month, transaction_type
+        ORDER BY month
+        """
+        self.cursor.execute(sql, (user_id, str(year)))
+        yearly_report = self.cursor.fetchall()
+        if len(yearly_report) > 0:
+            print("month-by-month totals for whole year: \n")
+            savings = 0
+            for i in yearly_report:
+                print(calendar.month_name[int(i[0])], i[1], "=", i[2])
+                if i[1] == 'Expense':
+                    savings -= i[2]
+                else:
+                    savings += i[2]
+            if savings >= 0:
+                print("You saved", savings, "this year")
+            else:
+                print("You overspent", abs(savings), "this year")
+        else:
+            print("No transaction saved for this year.")
     
     def close(self):
         self.cursor.close()
