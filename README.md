@@ -1,6 +1,6 @@
-# <center>Finance Management Application</center>
+<h1 align = "center">Finance Management Application</h1>
 
-<center>A command-line application that helps users manage their personal finances by tracking  income, expenses, and generating financial reports.</center>
+<p align = "center">A command-line application that helps users manage their personal finances by tracking  income, expenses, and generating financial reports.</p>
 
 ## Features
 
@@ -26,7 +26,7 @@
 
 ### Data Persistence
 
-- Store user data and transactions in a SQLite or any other database as per your preference.
+- Store user data and transactions in a SQLite.
 - Implement functions to back up and restore data.
 
 ### Testing and Documentation
