@@ -72,15 +72,15 @@ class DatabaseManager:
             print("Transaction added on", i[4])
             print()
     
-    def update_transaction(self, transaction_id:int, column: str, update: str|float):
+    def update_transaction(self, transaction_id:int, column: str, update: str|float) -> None:
         self.cursor.execute(f"UPDATE transactions SET {column} = ? WHERE transaction_id = ?", (update, transaction_id))
         self.conn.commit()
     
-    def delete_transaction(self, transaction_id: int):
+    def delete_transaction(self, transaction_id: int) -> None:
         self.cursor.execute("DELETE FROM transactions WHERE transaction_id = ?", (transaction_id,))
         self.conn.commit()
     
-    def monthly_report(self, user_id: int, year: int, month: int):
+    def monthly_report(self, user_id: int, year: int, month: int) -> None:
         sql = """
         SELECT category, SUM(amount) as total 
         FROM transactions
@@ -117,7 +117,7 @@ class DatabaseManager:
         else:
             print("No transaction saved for this month.")
     
-    def yearly_report(self, user_id: int, year: int):
+    def yearly_report(self, user_id: int, year: int) -> None:
         sql = """
         SELECT strftime('%m', date) as month, transaction_type, SUM(amount) as total
         FROM transactions
@@ -143,6 +143,25 @@ class DatabaseManager:
         else:
             print("No transaction saved for this year.")
     
+    def set_budget(self, user_id: int, category: str, amount: float) -> None:
+        sql = """
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            category TEXT NOT NULL,
+            amount REAL NOT NULL,
+            UNIQUE (user_id, category),
+            FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
+        );
+        """
+        self.cursor.execute(sql)
+        self.cursor.execute("""
+                            INSERT INTO budgets (user_id, category, amount) VALUES
+                            (?, ?, ?)
+                            ON CONFLICT (user_id, category)
+                            DO UPDATE SET amount = excluded.amount""", (user_id, category, amount,))
+        self.conn.commit()
+        
     def close(self):
         self.cursor.close()
         self.conn.close()
