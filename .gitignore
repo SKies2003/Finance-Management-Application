@@ -3,3 +3,8 @@ db.sqlite
 
 # Python cache
 __pycache__/
+
+# pyinstaller build files
+*.spec
+/build/
+/dist/
