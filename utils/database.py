@@ -161,7 +161,19 @@ class DatabaseManager:
                             ON CONFLICT (user_id, category)
                             DO UPDATE SET amount = excluded.amount""", (user_id, category, amount,))
         self.conn.commit()
-        
+
+    def get_budget(self, user_id: int, category: str):
+        self.cursor.execute("SELECT amount FROM budgets WHERE user_id = ? AND category = ?", (user_id, category))
+        amount = self.cursor.fetchone()
+        if amount is not None:
+            return amount[0]
+    
+    def get_expense(self, user_id: int, category: str):
+        self.cursor.execute("SELECT SUM(amount) as total FROM transactions WHERE user_id = ? AND category = ?", (user_id, category))
+        total = self.cursor.fetchone()
+        if total is not None:
+            return total[0]
+
     def close(self):
         self.cursor.close()
         self.conn.close()

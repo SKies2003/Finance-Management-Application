@@ -49,6 +49,14 @@ class Tracker:
         income_expense = self.transaction_type()
         category = self.category()
         amount = self.amount()
+        budget_amount = self.db.get_budget(user_id, category)
+        spent_amount = self.db.get_expense(user_id, category)
+        if budget_amount is not None and spent_amount is not None:
+            remain = budget_amount - (spent_amount + amount)
+            if remain >= 0:
+                print("You are", remain, "to cross your budget limit.")
+            elif remain < 0:
+                print("You are", abs(remain), "over the budget limit.")
         print(f"\nYour {income_expense} of {amount} for {category} is saved.")
         return self.db.add_transaction(user_id, income_expense, category, amount)
     
