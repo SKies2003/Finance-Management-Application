@@ -16,7 +16,7 @@ class DatabaseManager:
             gender TEXT CHECK(gender IN ('Male', 'Female')),
             contact_no TEXT UNIQUE,
             pan TEXT unique
-        )
+        );
         """)
 
         self.cursor.execute("""
@@ -28,8 +28,18 @@ class DatabaseManager:
                 amount REAL NOT NULL,
                 date TEXT DEFAULT (DATE('now')),
                 FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
-            )
+            );
             """)
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            category TEXT NOT NULL,
+            amount REAL NOT NULL,
+            UNIQUE (user_id, category),
+            FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
+        );
+        """)
 
     def sign_up(self, username: str, password: str, name: str, age: int, gender: str, contact_no: str, pan: str):
         try:
@@ -144,17 +154,6 @@ class DatabaseManager:
             print("No transaction saved for this year.")
     
     def set_budget(self, user_id: int, category: str, amount: float) -> None:
-        sql = """
-        CREATE TABLE IF NOT EXISTS budgets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            category TEXT NOT NULL,
-            amount REAL NOT NULL,
-            UNIQUE (user_id, category),
-            FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
-        );
-        """
-        self.cursor.execute(sql)
         self.cursor.execute("""
                             INSERT INTO budgets (user_id, category, amount) VALUES
                             (?, ?, ?)
