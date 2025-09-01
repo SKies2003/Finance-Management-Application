@@ -1,8 +1,11 @@
 import sqlite3
+import shutil
+import os
 import calendar
 
 class DatabaseManager:
     def __init__(self, db_name = "db.sqlite"):
+        self.db_name = db_name
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
         self.cursor.execute("PRAGMA foreign_keys = ON")
@@ -40,6 +43,34 @@ class DatabaseManager:
             FOREIGN KEY (user_id) REFERENCES authenticate(id) ON DELETE CASCADE
         );
         """)
+    
+    # --- Backup & Restore ---
+    def backup(self, backup_file: str = "backup.sqlite") -> bool:
+        """Create a backup of the database."""
+        try:
+            self.conn.commit()  # flush changes
+            shutil.copy(self.db_name, backup_file)
+            print(f"Backup created at {backup_file}")
+            return True
+        except Exception as e:
+            print("Backup failed:", e)
+            return False
+
+    def restore(self, backup_file: str = "backup.sqlite") -> bool:
+        """Restore database from backup file."""
+        try:
+            if not os.path.exists(backup_file):
+                print("Backup file not found.")
+                return False
+            self.conn.close()
+            shutil.copy(backup_file, self.db_name)
+            self.conn = sqlite3.connect(self.db_name)
+            self.cursor = self.conn.cursor()
+            print(f"Database restored from {backup_file}")
+            return True
+        except Exception as e:
+            print("Restore failed:", e)
+            return False
 
     def sign_up(self, username: str, password: str, name: str, age: int, gender: str, contact_no: str, pan: str):
         try:
