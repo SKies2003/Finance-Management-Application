@@ -72,6 +72,7 @@ class DatabaseManager:
             print("Restore failed:", e)
             return False
 
+    # --- User Authentication ---
     def sign_up(self, username: str, password: str, name: str, age: int, gender: str, contact_no: str, pan: str):
         try:
             self.cursor.execute("INSERT INTO authenticate (username, password, name, age, gender, contact_no, pan) VALUES (?, ?, ?, ?, ?, ?, ?)", (username, password, name, age, gender, contact_no, pan))
@@ -97,6 +98,7 @@ class DatabaseManager:
             print("user not found!")
             return None
 
+    # --- Transactions ---
     def add_transaction(self, user_id: int, transaction_type: str, category: str, amount: float):
         self.cursor.execute("INSERT INTO transactions (user_id, transaction_type, category, amount) VALUES (?, ?, ?, ?)", (user_id, transaction_type, category, amount))
         self.conn.commit()
@@ -120,7 +122,8 @@ class DatabaseManager:
     def delete_transaction(self, transaction_id: int) -> None:
         self.cursor.execute("DELETE FROM transactions WHERE transaction_id = ?", (transaction_id,))
         self.conn.commit()
-    
+
+    # --- Reports ---
     def monthly_report(self, user_id: int, year: int, month: int) -> None:
         sql = """
         SELECT category, SUM(amount) as total 
@@ -183,7 +186,8 @@ class DatabaseManager:
                 print("You overspent", abs(savings), "this year")
         else:
             print("No transaction saved for this year.")
-    
+
+    # --- Budgeting ---
     def set_budget(self, user_id: int, category: str, amount: float) -> None:
         self.cursor.execute("""
                             INSERT INTO budgets (user_id, category, amount) VALUES
@@ -197,7 +201,7 @@ class DatabaseManager:
         amount = self.cursor.fetchone()
         if amount is not None:
             return amount[0]
-    
+
     def get_expense(self, user_id: int, category: str):
         self.cursor.execute("SELECT SUM(amount) as total FROM transactions WHERE user_id = ? AND category = ?", (user_id, category))
         total = self.cursor.fetchone()
