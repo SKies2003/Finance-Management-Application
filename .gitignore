@@ -1,8 +1,10 @@
 # SQLite DB
 db.sqlite
+backup.sqlite
 
 # Python cache
 __pycache__/
+.pytest_cache/
 
 # pyinstaller build files
 *.spec
