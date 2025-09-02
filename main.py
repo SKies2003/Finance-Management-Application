@@ -44,6 +44,8 @@ what you want to?
     6. Want to see your yearly report?
     7. Want to set a monthly budget on specific categories?
     8. Exit (Any other key!)
+    9. Backup database
+    10. Restore database
             
 Enter a number referencing above actions: """
                     )
@@ -53,19 +55,23 @@ Enter a number referencing above actions: """
                 break
 
             if user_action == 1:
-                track.add_transaction(user_id) # pyright: ignore[reportPossiblyUnboundVariable]
+                track.add_transaction(user_id) # type: ignore
             elif user_action == 2:
-                track.display_transactions(user_id) # pyright: ignore[reportPossiblyUnboundVariable]
+                track.display_transactions(user_id) # type: ignore
             elif user_action == 3:
                 track.update_transaction()
             elif user_action == 4:
                 track.delete_transaction()
             elif user_action == 5:
-                report.monthly_report(user_id) # pyright: ignore[reportPossiblyUnboundVariable]
+                report.monthly_report(user_id) # type: ignore
             elif user_action == 6:
-                report.yearly_report(user_id) # pyright: ignore[reportPossiblyUnboundVariable]
+                report.yearly_report(user_id) # type: ignore
             elif user_action == 7:
-                budget.set_budget(user_id)  # type: ignore
+                budget.set_budget(user_id) # type: ignore
+            elif user_action == 9:
+                db.backup()
+            elif user_action == 10:
+                db.restore()
             else:
                 print("End!")
                 break
