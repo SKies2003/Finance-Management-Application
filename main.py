@@ -68,9 +68,9 @@ Enter a number referencing above actions: """
                 report.yearly_report(user_id) # type: ignore
             elif user_action == 7:
                 budget.set_budget(user_id) # type: ignore
-            elif user_action == 9:
+            elif user_action == 8:
                 db.backup()
-            elif user_action == 10:
+            elif user_action == 9:
                 db.restore()
             else:
                 print("End!")

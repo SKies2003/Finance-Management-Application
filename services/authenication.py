@@ -1,6 +1,6 @@
 from utils.database import DatabaseManager
 
-class UserAuthenticate():
+class UserAuthenticate:
     def __init__(self, db: DatabaseManager):
         self.db = db
     
